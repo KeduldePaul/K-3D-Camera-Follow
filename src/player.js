@@ -52,7 +52,7 @@ export class Player {
     model.load('/assets/models/soldier.glb',
       this._onGLTFLoaded.bind(this),
       (xhr) => {
-        console.log('a loading proggress.... '+(xhr.loaded/xhr.total * 100)+'%');
+        console.log('Player loading proggress.... '+(xhr.loaded/xhr.total * 100)+'%');
       },
       (err) => {
         console.error("Cannot load GLTF"+ err);
@@ -145,7 +145,7 @@ export class Player {
     const angleLimit = Math.PI * 0.125;
     
     // smooth angle constraining
-    const correctionAngle = (angle - angleLimit) * Math.exp(-1.609, dt);
+    const correctionAngle = (angle - angleLimit) * Math.exp(-100.609 * dt);
     if (correctionAngle > 0) {
       let rotator = new THREE.Quaternion().setFromAxisAngle(left, -correctionAngle).normalize();
       this.cam.position.sub(this.cameraAnchor)
@@ -154,14 +154,17 @@ export class Player {
     }
   }
 
-  _updateModel(F) {
+  _updateModel(dt) {
     this.model.position.set(this.loc.x, this.loc.y + this._verticalShift, this.loc.z);
     
     if (this.vel.length() > 0) {
       this.playerFacing.copy(this.vel).normalize();
     }
-    const lookTarget = this.playerFacing.clone().multiplyScalar(-1).add(this.model.position);
-    this.model.lookAt(lookTarget);
+    
+    const faceToQuaternion = new THREE.Quaternion();
+    faceToQuaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), this.playerFacing);
+    
+    this.model.quaternion.slerp(faceToQuaternion, Math.exp(-90.6 * dt));
   }
   
   update(dt) {
@@ -194,7 +197,7 @@ export class Player {
     }
     
     this._mixer.update(dt);
-    this._updateModel();
+    this._updateModel(dt);
     this._updateCameraPosition(dt);
     
     this.boundingBox.setFromObject(this.model);
