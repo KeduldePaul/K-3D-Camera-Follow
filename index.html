@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Camera Follow</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style type="text/css" media="all">
+  :root {
+    --helpers-bg: #000000df;
+    --helpers-sep:  1px solid #404040;
+  }
+  
+  body {
+    margin:0;
+    /* overflow: hidden; */
+  }
+  
+  div#main canvas {
+    position: absolute;
+  }
+  
+  #helpers-container {
+    position: fixed;
+    background: var(--helpers-bg);
+  }
+  
+  #helpers-container div {
+    float: left;
+  }
+  
+  a.helper-toggle {
+    display: block;
+    padding: 0.5em 0.3em 0.5em 0.3em;
+    border: none;
+  }
+  
+  .helpers-hide {
+    display: none;
+  }
+  
+  .helpers-appear {
+    display: block;
+  }
+  
+  #helpers a, .helper-toggle {
+    font-family: Tahoma, sans-Serif;
+    color: white;
+    text-decoration: none;
+    float: left;
+    display: block;
+    padding: 0.5em 1.5em 0.5em 1.5em;
+    border-right: var(--helpers-sep);
+  }
+  
+  @media screen and (max-width: 600px) {
+    body {
+      background: #000000;
+    }
+    
+    #helpers a, .helper-toggle, a#close-helpers {
+      width:100%;
+      border-bottom: var(--helpers-sep);
+      padding: 0.8em 1em 0.8em 1.2em;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="helpers-container">
+<a href="#" id="open-helpers" class="helper-toggle" style="display: block">&gt;</a>
+<div id="helpers" class="helpers-hide">
+<a href="https://www.google.com"><i class="fa-brands fa-google" aria-hidden="true"></i> Google</a>
+<a href="https://keiwando.com/color-picker/"><i class="fa-solid fa-pallete" aria-hidden="true"></i> Color Picker</a>
+<a href="https://www.threejs.org/docs/">THREE docs</a>
+<a href="https://chatgpt.com/?utm_source=google&utm_medium=paidsearch_brand&utm_campaign=GOOG_C_SEM_GBR_Core_CHT_BAU_ACQ_PER_MIX_ALL_APAC_ID_EN_032525&utm_term=chatgpt&utm_content=176671815269&utm_ad=741704772231&utm_match=e&gad_source=1&gad_campaignid=22376794295&gbraid=0AAAAA-IW-UUGjta2cyEc2DHzEQvH-G66I&gclid=EAIaIQobChMInsOi8I7sjgMV3KtmAh2cQQ2QEAAYASAAEgJKoPD_BwE">ChatGPT</a>
+</div>
+<a href="#" id="close-helpers" class="helper-toggle" style="display: none">&lt;</a>
+</div>
+
+<div id="main">
+</div>
+
+<!--debugging tool-->
+<!--<div>
+      <span id="xx"></span>
+      <span id="yy"></span>
+    </div>-->
+<script type="text/javascript">
+  const helpers = document.querySelector("#helpers");
+  const openButton = document.querySelector('#open-helpers');
+  const closeButton = document.querySelector('#close-helpers');
+  
+  openButton.onclick = (e) => {
+    helpers.classList.add('helpers-appear');
+    helpers.classList.remove('helpers-hide');
+    
+    openButton.style.display  = 'none';
+    closeButton.style.display = 'block';
+    
+    return false;
+  };
+  
+  closeButton.onclick = (e) => {
+    helpers.classList.add('helpers-hide');
+    helpers.classList.remove('helpers-appear');
+    
+    closeButton.style.display  = 'none';
+    openButton.style.display = 'block';
+    
+    return false;
+  };
+</script>
+
+<script src="./src/main.js" type="module" charset="utf-8"></script>
+</body>
+</html>
