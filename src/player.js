@@ -49,7 +49,7 @@ export class Player {
     // this.boundingBox.setFromObject(this.model);
     
     const model = new GLTFLoader();
-    model.load('/assets/models/soldier.glb',
+    model.load('/assets/models/Soldier.glb',
       this._onGLTFLoaded.bind(this),
       (xhr) => {
         console.log('Player loading proggress.... '+(xhr.loaded/xhr.total * 100)+'%');
