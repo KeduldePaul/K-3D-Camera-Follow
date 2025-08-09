@@ -4,6 +4,7 @@ import { GLTFLoader } from 'https://esm.sh/three@0.168.0/examples/jsm/loaders/GL
 export class GameObject {
   constructor(scene, x, y, z, options) {
     this.loc = new THREE.Vector3(x, y, z);
+    this.meshOffset = new THREE.Vector3();
     // added sometimes
     // this.indestuctible = options?.indestructible || true;
     // this.hp = options?.hp ?? Infinity;
@@ -14,6 +15,7 @@ export class GameObject {
   setModel(model) {
     this._model = model.clone();
     this._model.position.copy(this.loc);
+    this._model.position.add(this.meshOffset);
     this._scene.add(this._model);
   }
   
@@ -25,6 +27,5 @@ export class GameObject {
 export class Tree extends GameObject {
   constructor(scene, x, y, z) {
     super(scene, x, y, z);
-    this.loc.y += 0.5;
   }
 }
