@@ -1,0 +1,20 @@
+#loading-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9;
+  padding: 1em 1em;
+  border-radius: 0.5em;
+  
+  display: none;
+  align-items: center;
+  justify-content: center;
+  
+  background: #222222cc;
+  color: white;
+}
+
+#loading {
+  display: block;
+}
