@@ -83,10 +83,14 @@ export default class GameScene extends THREE.Scene {
       ));
     }
     
-    this._loadTotal += 10;
-    loadGLTFs({
+    const assets = {
       'tree1': 'assets/models/low_poly_tree.glb',
-    }, gltfs => {
+    };
+    const totalAssets = Object.values(assets).length;
+    this._loadTotal += totalAssets;
+    
+    let prevCount = 0;
+    loadGLTFs(assets, gltfs => {
       const model = gltfs['tree1'].scene;
       model.traverse(child => {
         if (child.isMesh) {
@@ -101,10 +105,12 @@ export default class GameScene extends THREE.Scene {
         model.rotation.y = Math.random() * Math.PI * 2;
         tree.setModel(model);
       });
-    }, xhr => {
-      const loads = xhr.count/xhr.total;
-      this._loadCount += loads * 10;
-      console.log(`Tree loading progress: ${loads * 100}%`)
+    }, prog => {
+      const loadIncrement = (prog.count - prevCount);
+      this._loadCount += loadIncrement;
+      console.log(`Tree loading progress: ${prog.count}/${prog.total}`, `load increment: ${loadIncrement}`)
+      
+      prevCount = prog.count;
     }, err => {
       console.error(err)
     });
@@ -159,8 +165,9 @@ export default class GameScene extends THREE.Scene {
     if (this._loadCount < this._loadTotal) {
       this._loadingBox.style.display = 'block';
       this._loadingBar.value = this._loadCount / this._loadTotal;
-    } else {
-      this._loadingBox.style.display = 'none';
+    } else if (this._loadingBox.style.display === 'block') {
+      this._loadingBar.value = this._loadCount / this._loadTotal;
+      setTimeout(() => this._loadingBox.style.display = 'none', 500);
     }
   }
 }
