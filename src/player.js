@@ -100,10 +100,11 @@ export class Player {
       this._activeAction = action;
       
       // this._lastAction.stop();
-      this._lastAction.fadeOut(0.25);
       this._activeAction.reset();
-      this._activeAction.fadeIn(0.5);
+      // this._lastAction.fadeOut(0.25);
+      // this._activeAction.fadeIn(0.5);
       this._activeAction.play();
+      this._activeAction.crossFadeFrom(this._lastAction, 0.5, false);
     }
   }
   
