@@ -13,6 +13,7 @@ export function loadGLTFs(models, loaded, progress, error) {
     total: Object.keys(models).length,
   }
   
+  let prevXhr = 0;
   let promises = [];
   // new Promise((resolve, reject) => {
   for (const [key, path] of Object.entries(models)) {
@@ -21,12 +22,16 @@ export function loadGLTFs(models, loaded, progress, error) {
         path,
         gltf => {
           assets[key] = gltf;
+          
           progs.modelKey = key;
-          progs.count++;
+          progs.count += 1;//(xhr.loaded - prevXhr) / xhr.total;
           progress(progs);
           resolve([key, gltf]);
         },
-        undefined,
+        xhr => {
+          
+          prevXhr = xhr.loaded;
+        },
         err => {
           console.error(`Error loading ${path}:`, err);
           reject(err);
