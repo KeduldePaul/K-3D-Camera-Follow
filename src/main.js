@@ -64,6 +64,7 @@ function touchUp(id, x, y, t) {
 }
 
 function animate(time) {
+  time = time * 0.001; //ms to s
   const dt = clock.getDelta();
   
   // ctx.fillStyle = '#82a2d7'
