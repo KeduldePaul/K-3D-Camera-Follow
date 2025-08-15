@@ -8,6 +8,8 @@ import {Player} from './player.js';
 const renderer = new THREE.WebGLRenderer({antialias: true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
+// renderer.shadowMap.enabled = true;
+// renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 renderer.domElement.style.top = '0';
 renderer.domElement.style.left = '0';
 renderer.domElement.style.zIndex = '-99';
@@ -35,7 +37,7 @@ controlSetup(uiCanvas, {
 );
 const uis = new KUIManager();
 const joystick = new Joystick({fixed: true});
-joystick.setLocation(uiCanvas.width / 2 - 200, uiCanvas.height - 270);
+joystick.setLocation(180, uiCanvas.height - 270);
 joystick.setRadius(100);
 
 uis.add(joystick);
@@ -68,7 +70,7 @@ function animate(time) {
   ctx.clearRect(0, 0, uiCanvas.width, uiCanvas.height)
   uis.show(ctx);
   
-  gameScene.update(dt);
+  gameScene.update(dt, time);
   gameScene.show2d(ctx);
   requestAnimationFrame(animate);
 }
