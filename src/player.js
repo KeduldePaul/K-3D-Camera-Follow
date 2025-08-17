@@ -78,7 +78,7 @@ export class Player {
     const mixer = new THREE.AnimationMixer(gltf.scene);
     
     this._idleAction = mixer.clipAction(animations[0]);
-    this._runAction = mixer.clipAction(animations[1]);
+    this._runAction  = mixer.clipAction(animations[1]);
     this._walkAction = mixer.clipAction(animations[3]);
     
     this._activeAction = this._idleAction;
@@ -165,7 +165,7 @@ export class Player {
     const faceToQuaternion = new THREE.Quaternion();
     faceToQuaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), this.playerFacing);
     
-    this.model.quaternion.slerp(faceToQuaternion, Math.exp(-90.6 * dt));
+    this.model.quaternion.slerp(faceToQuaternion, 1.0 - Math.exp(-10.6 * dt));
   }
   
   update(dt) {
