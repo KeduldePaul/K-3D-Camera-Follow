@@ -72,7 +72,7 @@ function animate(time) {
   uis.show(ctx);
   
   gameScene.update(dt, time);
-  gameScene.show2d(ctx);
+  gameScene.show2d(ctx, dt);
   requestAnimationFrame(animate);
 }
 
