@@ -1,14 +1,17 @@
 import * as THREE from 'https://esm.sh/three@0.168.0';
 import { GLTFLoader } from 'https://esm.sh/three@0.168.0/examples/jsm/loaders/GLTFLoader.js';
-import {Coin} from './item.js';
-import {Tree} from './game_object.js';
-import {loadGLTFs} from './assets_manager.js';
+import { loadGLTFs } from './assets_manager.js';
+import { Coin } from './item.js';
+import { Tree } from './game_object.js';
+import { RobotEnemy } from './npc.js';
 
 export default class GameScene extends THREE.Scene {
   constructor(renderer, width, height) {
     super();
     this._loadCount = 0; 
     this._loadTotal = 0;
+    
+    this._start = false;
     
     this.renderer = renderer;
     this.background = new THREE.Color(0xfffffaa);
@@ -59,6 +62,7 @@ export default class GameScene extends THREE.Scene {
     
     // Game Objects
     this._addTrees();
+    this._addEnemies();
     
     // UIs
     this._loadingBox = document.querySelector('#loading-box');
@@ -115,6 +119,43 @@ export default class GameScene extends THREE.Scene {
       console.error(err)
     });
   }
+  
+  _addEnemies() {
+    this._loadTotal += 1;
+    let prevLoaded = 0;
+    
+    let prevLoadCount = this._loadTotal - 1; // uncompleted loading count problem hack
+    RobotEnemy.loadModel(
+      (model, animations) => {
+      this._loadCount = prevLoadCount + 1;
+      // console.log(this._loadCount, this._loadTotal)
+    
+      this._enemies = [];
+      for (let i = 0, totEnemy = 3; i < totEnemy; i++) {
+        const enemy = this._createEnemy();
+        enemy.setModel(model, true);
+        enemy.setAnimations(animations);
+        enemy.finish3d();
+        this._enemies.push(enemy);
+      }
+    }, (loaded, total) => {
+      this._loadCount = (loaded - prevLoaded) / total;
+      prevLoaded = loaded;
+    }, err => {
+      console.log(err);
+    });
+  }
+  
+  _createEnemy() {
+    const enemy = new RobotEnemy(
+      this,
+      this._randomOnMap(),
+      0,
+      this._randomOnMap()
+    );
+    
+    return enemy;
+  }
  
   addPlayer(player) {
     this.player = player;
@@ -127,7 +168,24 @@ export default class GameScene extends THREE.Scene {
   }
   
   update(dt, time) {
-    this.player.update(dt);
+    if (!this._start && this._loadCount >= this._loadTotal) {
+      setTimeout(() => this._start = true, 500);
+    }
+    
+    if (!this._start) return;
+    
+    this.player.update(dt, time);
+    
+    for (let i = 0; i < this._enemies.length; i++) {
+      const distSq = this._enemies[i].calcDistanceSq(this.player);
+      if (
+        distSq < this._enemies[i].maxDistanceToAttack**2  && 
+        (this._enemies[i].fovTo(this.player) || this.player.getNoise() / (1.0 + 0.01 * distSq) >= 6.0)
+      ) {
+        this._enemies[i].attack(this.player);
+      }
+      this._enemies[i].update(dt, time);
+    }
     
     for (let i = this.coins.length - 1; i >= 0; i--){
       const coin = this.coins[i];
@@ -151,6 +209,16 @@ export default class GameScene extends THREE.Scene {
       throw new Error('Canvas 2d not yet defined for the scene -> show2d(ctx, dt). Set &lt;your_game_scene&gt;.setCanvas2d(canvas2d) first!');
     }
     
+    if (this._loadCount < this._loadTotal) {
+      this._loadingBox.style.display = 'block';
+      this._loadingBar.value = this._loadCount / this._loadTotal;
+    } else if (this._loadingBox.style.display === 'block') {
+      this._loadingBar.value = this._loadCount / this._loadTotal;
+      setTimeout(() => this._loadingBox.style.display = 'none', 500);
+    }
+    
+    if (!this._start) return;
+    
     const {width, height} = this.canvas2d;
     
     ctx.fillStyle = '#ffffff';
@@ -162,12 +230,6 @@ export default class GameScene extends THREE.Scene {
     ctx.fillText(coinText, width - 10, 60);
     ctx.strokeText(coinText, width - 10, 60);
     
-    if (this._loadCount < this._loadTotal) {
-      this._loadingBox.style.display = 'block';
-      this._loadingBar.value = this._loadCount / this._loadTotal;
-    } else if (this._loadingBox.style.display === 'block') {
-      this._loadingBar.value = this._loadCount / this._loadTotal;
-      setTimeout(() => this._loadingBox.style.display = 'none', 500);
-    }
+    this.player.show2d(this.canvas2d, ctx, dt);
   }
 }
