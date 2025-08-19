@@ -17,6 +17,19 @@ export class Player {
     this._loaded = false;
     
     this.coin = 0;
+    
+    this.hp    = 100;
+    this.level =   0;
+    this.atk   = 100;
+    this.def   =  18;
+    
+    // Hit Direction Indicator
+    this._gotDamaged = false;
+    this._HDIAlpha = 0;
+    this._HDIDirection = new THREE.Vector3();
+    
+    this._animationTimeStart = 0;
+    this._animationDuration  = 0;
   }
 
   setJoystick(joystick) {
@@ -38,6 +51,20 @@ export class Player {
 
   isLoaded() {
     return this._loaded;
+  }
+  
+  takeDamage(dmg, originLoc) {
+    this.hp -= dmg;
+    this._gotDamaged = true;
+    this._HDIAlpha = 1;
+    this._HDIDirection.subVectors(originLoc, this.loc);
+    this._HDIDirection.normalize();
+    this._animationTimeStart = performance.now();
+  }
+  
+  getNoise() {
+    const constant = 2;
+    return this.vel.length() * constant;
   }
   
   _init3D() {
@@ -202,5 +229,41 @@ export class Player {
     this._updateCameraPosition(dt);
     
     this.boundingBox.setFromObject(this.model);
+  }
+  
+  _drawHDIUI(ctx, x, y, scale, dt) {
+    if (!this._gotDamaged) return;
+    const rad = 240;
+    const angle = 0.39269908169872414;
+    const [hi, hj] = [this._HDIDirection.x, this._HDIDirection.z];
+    const right = new THREE.Vector3().crossVectors(this.cameraFacing, new THREE.Vector3(0, 1, 0));
+    const [xf, yf] = [this.cameraFacing.x, this.cameraFacing.z];
+    const [xr, yr] = [right.x, right.z];
+    
+    const xDir = xr * hi + xf * hj;
+    const yDir = yr * hi + yf * hj;
+    
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(-Math.atan2(yDir, xDir));
+    ctx.scale(scale, scale);
+    
+    ctx.strokeStyle = `rgba(200, 8, 5, ${this._HDIAlpha})`;
+    ctx.lineWidth = 16;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(0, 0, rad, -angle, angle);
+    ctx.stroke();
+    
+    this._HDIAlpha *= Math.exp(-0.5 * dt);
+    if (this._HDIAlpha < 0.1) {
+      this._gotDamaged = false;
+    }
+    
+    ctx.restore();
+  }
+  
+  show2d(cnv, ctx, dt) {
+    this._drawHDIUI(ctx, 0.5 * cnv.width, 0.5 * cnv.height, cnv.devicePixelRatio, dt);
   }
 }
